@@ -2,5 +2,6 @@
 
 members = [
     "mattermost",
+    "mattermost-core",
     "mattermost-http",
 ]

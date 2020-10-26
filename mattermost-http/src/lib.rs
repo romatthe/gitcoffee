@@ -1,16 +1,39 @@
 mod api;
+pub mod context;
 
-use actix_web::{App, HttpServer};
+use actix_web::{App, HttpServer, web};
 use api::v4;
 use std::io;
+use std::net::ToSocketAddrs;
+use std::sync::Arc;
+use tokio::sync::Mutex;
+use crate::context::UserContext;
 
-pub async fn init_http_server() -> Result<(), io::Error> {
-    let local = tokio::task::LocalSet::new();
-    let sys = actix_rt::System::run_in_tokio("server", &local);
-    let _ = HttpServer::new(|| App::new().configure(v4::configure))
-        .bind("0.0.0.0:8000")?
-        .run()
-        .await?;
+pub struct MattermostHttpServer {
+    users: UserContext
+}
 
-    sys.await
+impl MattermostHttpServer {
+    pub fn init(users: UserContext) -> Self {
+        MattermostHttpServer {
+            users
+        }
+    }
+
+    pub async fn run<A: ToSocketAddrs>(self, addr: A) -> Result<(), io::Error> {
+        let users = self.users;
+
+        let local = tokio::task::LocalSet::new();
+        let sys = actix_rt::System::run_in_tokio("server", &local);
+        let _ = HttpServer::new(move ||
+            App::new()
+                .data(users.clone())
+                .configure(v4::configure)
+            )
+            .bind(addr)?
+            .run()
+            .await?;
+
+        sys.await
+    }
 }

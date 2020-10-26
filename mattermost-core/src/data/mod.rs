@@ -1,0 +1,37 @@
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+
+#[derive(Serialize)]
+pub struct User {
+    id: String,
+    created_at: u64,
+    updated_at: u64,
+    deleted_at: u64,
+    username: String,
+    password: String,
+    auth_data: String,
+    auth_service: String,
+    email: String,
+    email_verified: String,
+    nickname: String,
+    first_name: String,
+    last_name: String,
+    position: String,
+    roles: String,
+    allow_marketing: bool,
+    props: HashMap<String, String>,
+    notify_props: HashMap<String, String>,
+    last_password_update: u64,
+    last_picture_update: u64,
+    failed_attempts: u32,
+    locale: String,
+    timezone: HashMap<String, String>,
+    mfa_active: bool,
+    mfa_secret: String,
+    last_activity_at: u64,
+    is_bot: bool,
+    bot_description: String,
+    bot_last_icon_update: u64,
+    terms_of_service_id: String,
+    terms_of_service_created_at: u64,
+}

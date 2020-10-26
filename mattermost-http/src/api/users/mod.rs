@@ -3,14 +3,21 @@ mod handlers;
 use actix_web::web;
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
+use mattermost_core::data::User;
+use mattermost_core::modules::UsersModule;
 
 pub fn configure(cfg: &mut web::ServiceConfig) {
-    cfg.service(web::scope("/users").route("", web::post().to(handlers::create_user)));
+    cfg.service(web::scope("/users")
+        .route("", web::get().to(handlers::list_users))
+        .route("", web::post().to(handlers::create_user))
+    );
 }
 
 #[derive(Deserialize)]
 struct CreateUserQuery {
+    /// Token Id
     t: Option<String>,
+    /// Invite id
     iid: Option<String>,
 }
 

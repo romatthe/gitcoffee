@@ -1,15 +1,26 @@
 use futures::{select, FutureExt};
-use mattermost_http::init_http_server;
+use mattermost_http::MattermostHttpServer;
+use sqlx::sqlite::SqlitePoolOptions;
+use mattermost_http::context::UserContext;
 
 #[tokio::main]
-async fn main() {
-    let http_server = init_http_server();
+async fn main() -> Result<(), sqlx::Error> {
+    let pool = SqlitePoolOptions::new()
+        .max_connections(5)
+        .connect("sqlite::memory:").await?;
+
+
+    let users = UserContext::new(pool.clone());
+
+    let http_server = MattermostHttpServer::init(users).run("0.0.0.0:8000");
 
     // Race the futures of the http server and shutdown handler
     select! {
         _ = http_server.fuse() => (),
         _ = shutdown_handler().fuse() => println!("Shutting down!"),
     }
+
+    Ok(())
 }
 
 #[cfg(unix)]
