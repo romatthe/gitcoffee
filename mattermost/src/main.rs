@@ -1,5 +1,3 @@
-mod api;
-
 use futures::{select, FutureExt};
 use mattermost_http::init_http_server;
 
