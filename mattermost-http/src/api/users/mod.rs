@@ -1,11 +1,17 @@
-use actix_web::{web, Responder, HttpResponse};
+mod handlers;
+
+use actix_web::web;
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
+pub fn configure(cfg: &mut web::ServiceConfig) {
+    cfg.service(web::scope("/users").route("", web::post().to(handlers::create_user)));
+}
+
 #[derive(Deserialize)]
 struct CreateUserQuery {
-    t: String,
-    iid: String,
+    t: Option<String>,
+    iid: Option<String>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -48,12 +54,4 @@ struct NotifyProps {
     channel: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     first_name: Option<bool>,
-}
-
-pub fn configure(cfg: &mut web::ServiceConfig) {
-    cfg.service(web::scope("/users").route("", web::post().to(create_user)));
-}
-
-async fn create_user(query: web::Query<CreateUserQuery>, item: web::Json<CreateUser>) -> impl Responder {
-    HttpResponse::Created().json(item.0)
 }
